@@ -55,6 +55,7 @@ import sys
 from dataclasses import dataclass
 import re
 
+
 @dataclass
 class Crate:
     name: str
@@ -62,6 +63,7 @@ class Crate:
 
     def __repr__(self):
         return f'[{self.name}]'
+
 
 @dataclass
 class Move:
@@ -72,6 +74,7 @@ class Move:
     def __str__(self):
         return f"move {self.quantity} from {self.from_stack} to {self.to_stack}"
 
+
 @dataclass
 class Stack:
     crates: list[Crate]
@@ -80,11 +83,12 @@ class Stack:
     def top(self):
         return self.crates[-1].name if self.crates else ""
 
+
 class Stacks:
     def __init__(self, stacks: list[Stack]):
         self.stacks = stacks
 
-    def move(self, move: Move, grouped=False):
+    def move(self, move: Move, grouped: bool = False):
         from_stack = self.stacks[move.from_stack - 1]
         to_stack = self.stacks[move.to_stack - 1]
         if grouped:
@@ -94,7 +98,7 @@ class Stacks:
             for _ in range(move.quantity):
                 to_stack.crates.append(from_stack.crates.pop())
 
-    def __str__(self):
+    def __str__(self) -> str:
         str_obj = ""
         stack_height = max(len(stack.crates) for stack in self.stacks)
         for i in range(stack_height - 1, -1, -1):
@@ -102,17 +106,17 @@ class Stacks:
                 if i < len(stack.crates):
                     str_obj += f'{stack.crates[i]} '
                 else:
-                     str_obj += '    '
+                    str_obj += '    '
             str_obj += '\n'
         str_obj += '\n'
         return str_obj
 
     @property
-    def top_row(self):
+    def top_row(self) -> str:
         return ''.join(stack.top for stack in self.stacks)
 
 
-def get_crates(stack_lines):
+def get_crates(stack_lines: list[str]) -> list[Crate]:
     crates = []
     for line in stack_lines:
         for m in re.finditer(r'\[', line):
@@ -122,19 +126,19 @@ def get_crates(stack_lines):
     return crates
 
 
-def build_stacks(stack_lines, stack_count):
+def load_stacks(stack_lines: list[str], stack_count: int) -> Stacks:
     crates = get_crates(stack_lines)
     stacks = [Stack([]) for _ in range(stack_count)]
     for crate in crates:
         stacks[crate.starting_stack].crates.append(crate)
-    
+
     for stack in stacks:
         stack.crates.reverse()
-    
+
     return Stacks(stacks)
 
 
-def parse_input(input_file):
+def parse_input(input_file: str) -> tuple[list[str], int, list[str]]:
     lines = None
     with open(input_file) as f:
         lines = f.readlines()
@@ -146,7 +150,7 @@ def parse_input(input_file):
     return stack_lines, stack_count, move_lines
 
 
-def parse_moves(move_lines):
+def parse_moves(move_lines: list[str]) -> list[Move]:
     moves = []
     for line in move_lines:
         match = re.search(r'move (\d+) from (\d+) to (\d+)', line)
@@ -154,6 +158,14 @@ def parse_moves(move_lines):
             params = (int(m) for m in match.groups())
             moves.append(Move(*params))
     return moves
+
+
+def make_moves(move_lines: list[str], stacks: Stacks, grouped: bool = False):
+    moves = parse_moves(move_lines)
+    for move in moves:
+        stacks.move(move, grouped)
+    return stacks
+
 
 '''
 --- Part Two ---
@@ -201,21 +213,24 @@ In this example, the CrateMover 9001 has put the crates in a totally different o
 Before the rearrangement process finishes, update your simulation so that the Elves know where they should stand to be ready to unload the final supplies. After the rearrangement procedure completes, what crate ends up on top of each stack?
 '''
 
-def load_ship(stack_lines, stack_count ,move_lines, grouped=False):
-    stacks = build_stacks(stack_lines, stack_count)
-    moves = parse_moves(move_lines)
-    for move in moves:
-        stacks.move(move, grouped=grouped)
-    return stacks
+
+def organise_stacks(
+    stack_lines: list[str],
+    stack_count: int,
+    move_lines: list[str],
+    grouped: bool = False
+) -> str:
+    stacks = load_stacks(stack_lines, stack_count)
+    moved = make_moves(move_lines, stacks, grouped)
+    return moved.top_row
 
 
-def main(data_file):
+def main(data_file: str):
     stack_lines, stack_count, move_lines = parse_input(data_file)
-    part1 = load_ship(stack_lines, stack_count, move_lines)
-    part2 = load_ship(stack_lines, stack_count, move_lines, grouped=True)
-    print(f'Part 1: {part1.top_row}')
-    print(f'Part 2: {part2.top_row}')
-    
+    part1 = organise_stacks(stack_lines, stack_count, move_lines)
+    part2 = organise_stacks(stack_lines, stack_count, move_lines, grouped=True)
+    print(f'Part 1: {part1}')
+    print(f'Part 2: {part2}')
 
 
 if __name__ == '__main__':
