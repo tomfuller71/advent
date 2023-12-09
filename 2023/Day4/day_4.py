@@ -39,8 +39,6 @@ import re
 import math
 from collections import deque
 
-p1_example_answer = [8, 2, 2, 1, 0, 0]
-
 
 def main(data, log=True):
     exp = re.compile(r"(\d+)")
