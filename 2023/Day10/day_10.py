@@ -1,9 +1,6 @@
+from calendar import c
 from enum import Enum
-from math import e
-from turtle import st
 
-from matplotlib.widgets import RangeSlider
-from regex import F
 
 from aoc_utils import day_parser
 
@@ -13,6 +10,9 @@ class Move(Enum):
     D = (1, 0)
     L = (0, -1)
     R = (0, 1)
+
+    def __repr__(self):
+        return self.name
 
     def reverse(self):
         if self == Move.U:
@@ -36,7 +36,16 @@ CONNECTIONS = {
     "S": (Move.U, Move.D, Move.L, Move.R),
 }
 
-TURNS = ["LJ", "F7"]
+TURNS = {
+    ".": 0,
+    "|": 0,
+    "-": 0,
+    "L": 1,
+    "J": -1,
+    "7": -1,
+    "F": 1,
+    "S": 0,
+}
 
 
 class Tile:
@@ -45,12 +54,8 @@ class Tile:
         self.connections = CONNECTIONS[char]
         self.char = char
         self.loop = False
-        self.inside_row = False
-        self.inside_col = False
-
-    @property
-    def enclosed(self):
-        return self.inside_row and self.inside_col
+        self.down_face_inside = False
+        self.enclosed = False
 
     @property
     def reverse_connections(self):
@@ -76,6 +81,7 @@ class Maze:
     def __init__(self, data: str):
         self.maze = self.parse_data(data)
         self.start = self.starting_tile()
+        self.start_char = self.char_of_start()
         self.marked_loop = False
         self.loop_length = self.search_max_distance_from_start()
         self.enclosed = self.count_enclosed()
@@ -86,16 +92,36 @@ class Maze:
     def search_max_distance_from_start(self):
         loop_count = 0
         tile = self.start
+        tile.char = self.start_char
+        tile.connections = CONNECTIONS[self.start_char]
         # S guarantees 2 valid connections - can go either way round the loop
-        heading = self.valid_connections(tile)[0]
+        dirs = self.valid_connections(tile)
+        heading = None
+        if dirs[0] in [Move.L, Move.R]:
+            heading = dirs[0]
+        elif dirs[1] in [Move.L, Move.R]:
+            heading = dirs[1]
+        else:
+            heading = dirs[0]
+
+        handedness_LR = heading if heading in [Move.L, Move.R] else Move.R
+        current_LR = handedness_LR
+        print(f'Starting at {self.start.pos} with {self.start_char}, {heading=} {handedness_LR=}')
         while True:
             tile.loop = True
-            next, heading = self.get_tile_and_heading(tile, heading)
-            tile = next
+            LR_heading = heading if heading in [Move.L, Move.R] else current_LR
+            tile.down_face_inside = LR_heading != handedness_LR
+            print(f'For tile: {tile.char}, {heading=}, LR={LR_heading}, inside={tile.down_face_inside}')
+            
+            next, next_heading = self.get_tile_and_heading(tile, heading)
             loop_count += 1
             if next is self.start:
                 break
+            tile = next
+            heading = next_heading
+            current_LR = LR_heading
         self.marked_loop = True
+        tile.char = "S"
         return loop_count // 2
 
     def char_of_start(self):
@@ -106,28 +132,7 @@ class Maze:
                 return key
         raise ValueError("No valid char found for start.")
 
-    def enclosed_ranges(self, slice: list[Tile], is_row=True):
-        passthrough = "-" if is_row else "|"  # char of tiles don't end range
-        tiles = [tile for tile in slice if tile.loop]
-        if len(tiles) < 2:
-            return []
-        r_c = 1 if is_row else 0
-        passthroughs = "-J7" if is_row else "|JL"
-        ranges = []
-        i = 0
-        while i < len(tiles):
-            while i < len(tiles) - 1 and tiles[i + 1].char in passthroughs:
-                i += 1
-                did_pass = True
-            if i >= len(tiles) - 1:
-                break
-
-            start = tiles[i].pos[r_c]
-            end = tiles[i+1].pos[r_c]
-            ranges.append((start, end))
-            i += 1
-        return ranges
-
+    
     def count_enclosed(self):
         self.mark_as_enclosed()
         enclosed = 0
@@ -138,30 +143,32 @@ class Maze:
         return enclosed
 
     def mark_as_enclosed(self):
+        candidates = []
+        for row in self.maze[1: -1]:
+            first, last  = None, None
+            for i in range(1, len(row)):
+                if row[i].loop:
+                    first = i
+                    break
 
-        def within_ranges(ranges, i):
-            for start, end in ranges:
-                if start <= i < end:
-                    return True
-            return False
-        
-        start_char = self.char_of_start()
-        self.start.char = start_char
+            for i in range(len(row) - 1, 0, -1):
+                if row[i].loop:
+                    last = i
+                    break
 
-        row_enclosed_ranges = [self.enclosed_ranges(row) for row in self.maze]
-        col_enclosed_ranges = [
-            self.enclosed_ranges([row[i] for row in self.maze])
-            for i in range(len(self.maze[0]))
-        ]
+            if not first or not last:
+                continue
 
-        for i, row in enumerate(self.maze):
-            for j, tile in enumerate(row):
-                if tile.loop:
-                    continue
-                tile.inside_row = within_ranges(row_enclosed_ranges[i], j)
-                tile.inside_col = within_ranges(col_enclosed_ranges[j], i)
+            for i in range(first, last):
+                if not row[i].loop:
+                    candidates.append(row[i])
 
-        self.start.char = "S"
+        for tile in candidates:
+            up_tile = self.get_tile_in_dir(tile, Move.U)
+            while not up_tile.loop and up_tile.pos[0] > 1:
+                up_tile = self.get_tile_in_dir(up_tile, Move.U)
+            if up_tile.loop and up_tile.down_face_inside:
+                tile.enclosed = True
         return None
 
     def get_tile_and_heading(self, tile, heading: Move):

@@ -17,4 +17,3 @@ if __name__ == "__main__":
         print(f"Using data from {args.infile}.\n")
         data = f.read().strip()
     main(data, log=args.log)
-    main(data, log=args.log)
