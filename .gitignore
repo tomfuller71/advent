@@ -1,11 +1,29 @@
-# Advent of Code Repository .gitignore
+# Advent of Code Repository - Project-Specific .gitignore
+# Global patterns (OS files, editor configs, temp files, etc.) are handled by ~/.gitignore_global
 
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
+# =============================================================================
+# ADVENT OF CODE SPECIFIC FILES
+# =============================================================================
+
+# Large input files (uncomment if you want to ignore personal puzzle inputs)
+# input.txt
+# *.input
+
+# Solution outputs (uncomment if you don't want to track solution files)
+# output.txt
+# solution.txt
+# answers.txt
+
+# Personal session tokens (if you use automation tools)
+session.txt
+cookies.txt
+personal_input.txt
+
+# =============================================================================
+# PYTHON PROJECT FILES (that aren't covered globally)
+# =============================================================================
+
+# Distribution / packaging
 build/
 develop-eggs/
 dist/
@@ -29,118 +47,24 @@ MANIFEST
 *.manifest
 *.spec
 
-# Unit test / coverage reports
+# Unit test / coverage reports (extended patterns)
 htmlcov/
 .tox/
 .nox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.py,cover
-.hypothesis/
-.pytest_cache/
 
-# Environments
-.env
-.env.*
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-
-# IDEs and Editors
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-.sublime-project
-.sublime-workspace
-
-# macOS
-.DS_Store
-.AppleDouble
-.LSOverride
-Icon
-._*
-.DocumentRevisions-V100
-.fseventsd
-.Spotlight-V100
-.TemporaryItems
-.Trashes
-.VolumeIcon.icns
-.com.apple.timemachine.donotpresent
-
-# Windows
-Thumbs.db
-Thumbs.db:encryptable
-ehthumbs.db
-ehthumbs_vista.db
-*.tmp
-*.temp
-Desktop.ini
-$RECYCLE.BIN/
-*.cab
-*.msi
-*.msix
-*.msm
-*.msp
-*.lnk
-
-# Linux
-*~
-.fuse_hidden*
-.directory
-.Trash-*
-.nfs*
-
-# Logs
-*.log
-logs/
-
-# Temporary files
-*.tmp
-*.temp
-temp/
-tmp/
-
-# Backup files
-*.bak
-*.backup
-*~
-
-# Session and personal files
-session.txt
-cookies.txt
-personal_input.txt
-
-# Large input files (optional - uncomment if you want to track input files)
-# input.txt
-# *.input
-
-# Solution outputs (optional - uncomment if you don't want to track outputs)
-# output.txt
-# solution.txt
-# answers.txt
-
-# Jupyter Notebook checkpoints
+# Jupyter Notebook
 .ipynb_checkpoints
 
-# pyenv
+# pyenv (local project Python versions)
 .python-version
 
 # pipenv
 Pipfile.lock
 
-# PEP 582
+# PEP 582; used by e.g. github.com/David-OConnor/pyflow
 __pypackages__/
 
-# Celery
+# Celery stuff
 celerybeat-schedule
 celerybeat.pid
 
@@ -152,11 +76,6 @@ celerybeat.pid
 
 # mkdocs documentation
 /site
-
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
 
 # Pyre type checker
 .pyre/

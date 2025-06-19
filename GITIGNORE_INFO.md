@@ -1,47 +1,54 @@
 # .gitignore Configuration for Advent of Code Repository
 
-This .gitignore file is specifically designed for an Advent of Code repository containing Python solutions.
+This repository now uses a **two-tier gitignore system**:
 
-## What's Being Ignored
+1. **Global gitignore** (`~/.gitignore_global`) - handles universal patterns
+2. **Local gitignore** (`.gitignore`) - handles project-specific patterns
 
-### Python-specific files:
-- `__pycache__/` - Python bytecode cache directories
-- `*.pyc`, `*.pyo`, `*.pyd` - Compiled Python files
-- `build/`, `dist/`, `*.egg-info/` - Package build artifacts
-- `.coverage`, `htmlcov/` - Test coverage reports
-- `.pytest_cache/` - Pytest cache files
+## Global Patterns (handled by ~/.gitignore_global)
 
-### Development environments:
-- `.env*` - Environment variable files (may contain sensitive data)
-- `.venv/`, `venv/`, `env/` - Virtual environment directories
-- `.python-version` - pyenv Python version files
+These are automatically ignored in **ALL** repositories on your system:
 
-### IDE and Editor files:
-- `.vscode/`, `.idea/` - IDE configuration
-- `*.swp`, `*.swo` - Vim temporary files
-- `.sublime-*` - Sublime Text settings
+- **OS files**: `.DS_Store`, `Thumbs.db`, `*~`
+- **Editor files**: `.vscode/`, `.idea/`, `*.swp`
+- **Environment files**: `.env*`, credentials, secrets
+- **Cache files**: `__pycache__/`, `*.pyc`, `.pytest_cache/`
+- **Temporary files**: `*.tmp`, `*.log`, `*.bak`
 
-### Operating System files:
-- `.DS_Store` - macOS file metadata
-- `Thumbs.db` - Windows thumbnail cache
-- `*~` - Linux backup files
+## Local Project-Specific Patterns
 
-### Temporary and backup files:
-- `*.tmp`, `*.temp` - Temporary files
-- `*.bak`, `*.backup` - Backup files
-- `*.log` - Log files
+This repository's `.gitignore` only handles Advent of Code specific patterns:
 
-## Files NOT ignored (tracked in repository):
-- `input.txt` - Puzzle input files (commented option to ignore)
-- `example.txt` - Example input files
+### Python build artifacts:
+
+- `build/`, `dist/`, `*.egg-info/` - Package distribution files
+- `.tox/`, `.nox/` - Testing environment directories
+- `htmlcov/` - Coverage report directories
+
+### Optional AoC files:
+
+- `session.txt`, `personal_input.txt` - Personal session data
+- Commented options for `input.txt` and `solution.txt`
+
+### Project tools:
+
+- `.ipynb_checkpoints` - Jupyter notebook checkpoints
+- `Pipfile.lock` - Pipenv lock files
+- Tool-specific configurations
+
+## What's NOT ignored (tracked in repository):
+
 - Solution source code (`.py` files)
+- `example.txt` - Example input files
+- `input.txt` - Puzzle input files (by default)
 - `README.md` files
 - `requirements.txt` files
+- Test files
 
-## Recently cleaned up:
-- Removed `.DS_Store` files that were previously tracked
-- Removed `.env` file that was previously tracked
-- Python cache files are now properly ignored
+## Benefits of This Setup:
 
-## Usage:
-The .gitignore is automatically applied. Files matching these patterns will not be tracked by git, keeping your repository clean and preventing sensitive or generated files from being committed.
+- ✅ **Cleaner repositories**: No OS or editor files ever get committed
+- ✅ **Less maintenance**: Universal patterns handled globally
+- ✅ **Project focus**: Local .gitignore only has relevant patterns
+- ✅ **Consistent**: Same global rules across all projects
+- ✅ **Secure**: Environment files protected everywhere
