@@ -1,42 +1,52 @@
 # This is a template for an Advent of Code problem solution.
 # Replace the part_1 and part_2 functions with your actual logic.
+from hmac import new
+import re
+from tracemalloc import start
 
-from collections import Counter
-
-
-def parse_input(data: str) -> list[tuple[int, int]]:
-    """
-    Parse the input data into a suitable format.
-    This function should be customized based on the input format of the problem.
-    """
-    # Example: if the input is a single line of comma-separated integers
-    pairs = []
-    for line in data.strip().splitlines():
-        # Assuming each line contains pairs of integers separated by spaces
-        pair = tuple(map(int, line.split()))
-        pairs.append(pair)
-    return pairs
+mult_expression = re.compile(r"((mul)\(([+-]?\d{1,3}),([+-]?\d{1,3})\))")
 
 
-def part_1(data):
-    # Implement part 1 logic here
-    pairs = parse_input(data)
-    left, right = zip(*pairs)
-    sorted_pairs = sorted(zip(sorted(left), sorted(right)))
-    sum_delta = sum(abs(l - r) for l, r in sorted_pairs)
-    return sum_delta
+def part_1(data: str):
+    matches = mult_expression.findall(data)
+    sum = 0
+    for _, inst, x, y in matches:
+        # print(f"Instruction: {inst}, x: {x}, y: {y}")
+        sum += int(x) * int(y)
+    return sum
 
 
-def part_2(data):
-    # Implement part 2 logic here
-    pairs = parse_input(data)
-    left, right = zip(*pairs)
-    counts = Counter(left)
-    score = 0
-    for n in right:
-        if n in counts:
-            score += n * counts[n]
-    return score
+def part_2(data: str):
+    sum = 0
+    start = 0
+    end = len(data) - 1
+    active = True
+    while end < len(data):
+        new_start = start
+        if active:
+            try:
+                inst = "don't()"
+                end = data.index(inst, start)
+                print(f"Found '{inst}' at index {end}")
+                active = False
+                new_start = end + len(inst)
+            except ValueError:
+                end = len(data)
+
+            search = data[start : end + 1]
+            print(f"Searching in: {search}")
+            sum += part_1(search)
+            start = new_start
+            print(f"New start index: {start}")
+        else:
+            try:
+                inst = "do()"
+                start = data.index(inst, start) + len(inst)
+                active = True
+                print(f"Found '{inst}' at index {start}")
+            except ValueError:
+                continue
+    return sum
 
 
 if __name__ == "__main__":
@@ -74,7 +84,7 @@ if __name__ == "__main__":
         type=int,
         choices=[1, 2],
         help="Specify part to run (1 or 2, default: %(default)s)",
-        default=1,
+        default=2,
     )
 
     args = parser.parse_args()
@@ -90,7 +100,7 @@ if __name__ == "__main__":
     with open(inFile) as f:
         data = f.read().strip()
         if log:
-            print("Using example.txt data...\n")
+            print(f"Using {inFile} data...\n")
 
     # Run the specified part
     if log:
