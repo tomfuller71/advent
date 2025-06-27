@@ -2,14 +2,126 @@
 # Replace the part_1 and part_2 functions with your actual logic.
 
 
+from re import sub
+
+
+XMAS = ["X", "M", "A", "S"]
+LEN_XMAS = 4
+
+
+def parse_input(data):
+    """
+    Input is a text  file representing an n * n grid of characters.
+    """
+    # Example parsing logic, modify as needed
+    return [[*word] for word in data.splitlines()]
+
+
+def check_xmas(grid, i, j, fwd: bool = True):
+    """
+    Check if the XMAS pattern exists in the grid starting from (i, j) in the specified direction.
+    Direction can be 'row', 'col', or 'diag'.
+    """
+    n = len(grid)
+    offset = 0 if fwd else LEN_XMAS - 1
+    row = sum(
+        int(grid[i][j + k] == XMAS[abs(offset - k)])
+        for k in range(LEN_XMAS)
+        if j + k < n
+    )
+    col = sum(
+        int(grid[i + k][j] == XMAS[abs(offset - k)])
+        for k in range(LEN_XMAS)
+        if i + k < n
+    )
+    diag_down_right = sum(
+        int(grid[i + k][j + k] == XMAS[abs(offset - k)])
+        for k in range(LEN_XMAS)
+        if i + k < n and j + k < n
+    )
+    diag_down_left = sum(
+        int(grid[i + k][j - k] == XMAS[abs(offset - k)])
+        for k in range(LEN_XMAS)
+        if i + k < n and j - k >= 0
+    )
+    results = []
+    if row == LEN_XMAS:
+        results.append("--")
+    if col == LEN_XMAS:
+        results.append("|")
+    if diag_down_right == LEN_XMAS:
+        results.append("\\")
+    if diag_down_left == LEN_XMAS:
+        results.append("/")
+    return results
+
+
 def part_1(data):
-    # Implement part 1 logic here
-    pass
+    grid = parse_input(data)
+    print(
+        "Grid parsed successfully. Size:", len(grid), "x", len(grid[0]) if grid else 0
+    )
+    if not grid or not grid[0]:
+        print("Empty grid, returning 0.")
+        return 0
+
+    n = len(grid)
+    c = 0
+    for i in range(n):
+        for j in range(n):
+            if grid[i][j] not in ["X", "S"]:
+                continue
+            if grid[i][j] == "X":
+
+                found = check_xmas(grid, i, j, fwd=True)
+                c += len(found)
+                # for direction in found:
+                #     print(f"Found XMAS fwd at ({i}, {j}) in {direction} direction")
+            elif grid[i][j] == "S":
+                found = check_xmas(grid, i, j, fwd=False)
+                c += len(found)
+                # for direction in found:
+                #     print(
+                #         f"Found XMAS backwards at ({i}, {j}) in {direction} direction"
+                #     )
+    return c
+
+
+DIAGONALS = [
+    (-1, -1),  # Top-left
+    (-1, 1),  # Top-right
+    (1, -1),  # Bottom-left
+    (1, 1),  # Bottom-right
+]
+
+MATCHES = [
+    ["M", "M", "S", "S"],
+    ["S", "S", "M", "M"],
+    ["S", "M", "S", "M"],
+    ["M", "S", "M", "S"],
+]
 
 
 def part_2(data):
-    # Implement part 2 logic here
-    pass
+    grid = parse_input(data)
+    print(
+        "Grid parsed successfully. Size:", len(grid), "x", len(grid[0]) if grid else 0
+    )
+    if not grid or not grid[0]:
+        print("Empty grid, returning 0.")
+        return 0
+
+    n = len(grid)
+    c = 0
+    for i in range(1, n - 1):
+        for j in range(1, n - 1):
+            if grid[i][j] != "A":
+                continue
+            subgrid = [grid[i + i_add][j + j_add] for i_add, j_add in DIAGONALS]
+            if subgrid in MATCHES:
+                c += 1
+                print(f"Found A at ({i}, {j}) with diagonal matching {subgrid}")
+    return c
 
 
 if __name__ == "__main__":
