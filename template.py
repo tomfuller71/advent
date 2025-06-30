@@ -1,15 +1,45 @@
-# This is a template for an Advent of Code problem solution.
-# Replace the part_1 and part_2 functions with your actual logic.
+"""
+Day X: [Problem Title]
+
+[Brief description of the problem]
+"""
+
+from aoc_utils import *
 
 
+def parse_input(data):
+    """Parse the input data into a useful format."""
+    lines = parse_lines(data)
+    # TODO: Implement parsing logic
+    return lines
+
+
+@timer
 def part_1(data, log=False):
-    # Implement part 1 logic here
-    pass
+    """Solve part 1 of the problem."""
+    parsed_data = parse_input(data)
+
+    if log:
+        debug_print(f"Parsed data: {parsed_data[:5]}...")  # Show first 5 items
+
+    # TODO: Implement part 1 logic here
+    result = None
+
+    return result
 
 
+@timer
 def part_2(data, log=False):
-    # Implement part 2 logic here
-    pass
+    """Solve part 2 of the problem."""
+    parsed_data = parse_input(data)
+
+    if log:
+        debug_print(f"Parsed data: {parsed_data[:5]}...")  # Show first 5 items
+
+    # TODO: Implement part 2 logic here
+    result = None
+
+    return result
 
 
 if __name__ == "__main__":
@@ -17,62 +47,46 @@ if __name__ == "__main__":
     import os
     from pathlib import Path
 
-    #  Use os to change directory to ensure we are in /Users/tomfuller/advent/{year}/Day{day}
+    # Use os to change directory to ensure we are in /Users/tomfuller/advent/{year}/Day{day}
     current_path = Path(__file__).resolve().parent
     os.chdir(current_path)
 
-    # Get command line arguments
-    parser = argparse.ArgumentParser(
-        description="Run Advent of Code problem.",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-    )
-    parser.add_argument(
-        "-l",
-        "--log",
-        action="store_true",
-        help="Enable log (default: %(default)s)",
-        default=False,
-    )
-    parser.add_argument(
-        "-e",
-        "--example",
-        action="store_true",
-        help="Use example input file (default: %(default)s)",
-        default=False,
-    )
-    parser.add_argument(
-        "-p",
-        "--part",
-        type=int,
-        choices=[1, 2],
-        help="Specify part to run (1 or 2, default: %(default)s)",
-        default=2,
-    )
+    # Use the enhanced argument parser from aoc_utils
+    args = day_parser().parse_args()
 
-    args = parser.parse_args()
-    inFile = "input.txt" if not args.example else "example.txt"
+    # Determine input file
+    if args.example:
+        inFile = "example.txt"
+    else:
+        inFile = "input.txt"
+
     log = args.log
     part = args.part
 
     # Check if the input file exists
     if not os.path.exists(inFile):
-        raise FileNotFoundError(f"Infile '{inFile}' does not exist in {current_path}.")
+        raise FileNotFoundError(
+            f"Input file '{inFile}' does not exist in {current_path}."
+        )
 
     # Read the input data
     with open(inFile) as f:
         data = f.read().strip()
         if log:
-            print(f"Using {inFile} data...\n")
+            print(f"Using {inFile} data (length: {len(data)} chars)...\n")
 
     # Run the specified part
     if log:
-        print("Log enabled. Data length:", len(data), "\n")
-        print(f"Part {part}:\n")
-    if args.part == 1:
+        print(f"Running Part {part} with logging enabled\n")
+
+    if part == 1:
         result = part_1(data, log=log)
-    elif args.part == 2:
+    elif part == 2:
         result = part_2(data, log=log)
     else:
         raise ValueError("Invalid part specified. Use 1 or 2.")
+
     if result is not None:
-        print(f"Result for part {part}:\n {result}")
+        print(f"\nResult for Part {part}: {result}")
+    else:
+        print(f"Part {part} returned None - implementation may be incomplete.")

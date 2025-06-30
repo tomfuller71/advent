@@ -105,7 +105,9 @@ def print_map(
 
 
 def part_1(data, log=False):
-    pass
+    matrix, r, c, start = parse_input(data)
+    route = get_route(start, matrix, r, c)
+    print(f"Part 1: {len(route)}")
 
 
 def part_2(data, log=False):
