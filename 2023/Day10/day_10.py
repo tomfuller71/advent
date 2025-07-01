@@ -1,10 +1,4 @@
 from enum import Enum
-from math import e
-from turtle import st
-
-from matplotlib.widgets import RangeSlider
-from regex import F
-
 from aoc_utils import day_parser
 
 
@@ -123,7 +117,7 @@ class Maze:
                 break
 
             start = tiles[i].pos[r_c]
-            end = tiles[i+1].pos[r_c]
+            end = tiles[i + 1].pos[r_c]
             ranges.append((start, end))
             i += 1
         return ranges
@@ -144,7 +138,7 @@ class Maze:
                 if start <= i < end:
                     return True
             return False
-        
+
         start_char = self.char_of_start()
         self.start.char = start_char
 
